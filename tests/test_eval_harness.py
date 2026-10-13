@@ -9,7 +9,7 @@ from types import SimpleNamespace
 import pytest
 
 from evals import judge, labels
-from evals.determinism import diff_runs
+from evals.determinism import behaviour_diff, diff_runs
 from evals.golden import load_golden
 from evals.pricing import PriceTable
 from evals.provenance import ROOT, corpus_manifest, golden_sha256
@@ -88,25 +88,35 @@ def test_golden_hash_ignores_line_ending_style(tmp_path):
 # ------------------------------------------------------------------ determinism helper
 
 
-def test_diff_runs_ignores_latency_only():
+def _rec(**result):
     base = {
-        "scenario_id": "x",
-        "result": {"answer": "a", "latency_ms": 1.0, "confidence": 0.5},
-        "error": None,
+        "answer": "a",
+        "latency_ms": 1.0,
+        "confidence": 0.5,
+        "retrieved": [],
+        "cited_chunk_ids": [],
+        "refused": False,
     }
-    slower = {
-        "scenario_id": "x",
-        "result": {"answer": "a", "latency_ms": 9.0, "confidence": 0.5},
-        "error": None,
-    }
-    changed = {
-        "scenario_id": "x",
-        "result": {"answer": "b", "latency_ms": 1.0, "confidence": 0.5},
-        "error": None,
-    }
-    assert diff_runs([base], [slower]) == []
-    assert diff_runs([base], [changed]) == ["x"]
+    return {"scenario_id": "x", "result": {**base, **result}, "error": None}
+
+
+def test_diff_runs_ignores_latency_and_float_noise_but_not_real_changes():
+    base = _rec()
+    assert diff_runs([base], [_rec(latency_ms=9.0)]) == []
+    noisy = _rec(confidence=0.5 + 2e-16)
+    assert diff_runs([base], [noisy]) == []  # tolerant by default
+    assert diff_runs([base], [noisy], digits=None) == ["x"]  # exact comparison sees it
+    assert diff_runs([base], [_rec(answer="b")]) == ["x"]
+    assert diff_runs([base], [_rec(confidence=0.51)]) == ["x"]
     assert diff_runs([base], [{**base, "scenario_id": "y"}]) == ["scenario id lists differ"]
+
+
+def test_behaviour_diff_looks_only_at_ids_citations_refusal_and_answer():
+    a = _rec(retrieved=[{"chunk_id": "d#0", "rerank": 0.1}], cited_chunk_ids=["d#0"])
+    b = _rec(retrieved=[{"chunk_id": "d#0", "rerank": 0.9}], cited_chunk_ids=["d#0"])
+    c = _rec(retrieved=[{"chunk_id": "d#1", "rerank": 0.1}], cited_chunk_ids=["d#0"])
+    assert behaviour_diff([a], [b]) == []  # score changed, behaviour same
+    assert behaviour_diff([a], [c]) == ["x"]
 
 
 # ------------------------------------------------------------------ judge with a fake client
