@@ -36,7 +36,7 @@ QUOTA = {
 }
 
 
-def sample(tag: str, runs_dir: Path) -> None:
+def sample(tag: str, runs_dir: Path, sheet_only: bool = False) -> None:
     run = load_run(tag, runs_dir)
     scen = {s.id: s for s in load_golden(GOLDEN_PATH)}
     ctx = build_context(ROOT / "data", run.meta["config"]["chunking"])
@@ -75,8 +75,11 @@ def sample(tag: str, runs_dir: Path) -> None:
             {"scenario_id": s.id, "human_faithful": None, "human_correct": None, "notes": ""}
         )
     SHEET.write_text("\n".join(sheet), encoding="utf-8")
-    LABELS.write_text("\n".join(json.dumps(x) for x in labels) + "\n", encoding="utf-8")
-    print(f"wrote {SHEET} and {LABELS} ({len(labels)} scenarios)")
+    if sheet_only:
+        print(f"wrote {SHEET} only; {LABELS.name} left untouched (it may hold the owner's labels)")
+    else:
+        LABELS.write_text("\n".join(json.dumps(x) for x in labels) + "\n", encoding="utf-8")
+        print(f"wrote {SHEET} and {LABELS} ({len(labels)} scenarios)")
     print("\n".join(sheet))
 
 
@@ -115,9 +118,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("cmd", choices=["sample", "agreement"])
     ap.add_argument("--tag", required=True)
     ap.add_argument("--runs-dir", default=str(RUNS_DIR))
+    ap.add_argument("--sheet-only", action="store_true", help="never touch judge_labels.jsonl")
     args = ap.parse_args(argv)
     if args.cmd == "sample":
-        sample(args.tag, Path(args.runs_dir))
+        sample(args.tag, Path(args.runs_dir), args.sheet_only)
     else:
         print(json.dumps(agreement(args.tag, Path(args.runs_dir)), indent=2))
     return 0

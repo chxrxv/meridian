@@ -230,3 +230,17 @@ def test_no_fixtures_corpus_run_uses_49_docs(tmp_path):
         if r["result"]
         for c in r["result"]["cited_chunk_ids"]
     )
+
+
+def test_golden_version_comparison_attributes_every_change_to_a_documented_cause():
+    from evals.compare_golden_versions import compare
+
+    res = compare("baseline-extractive-golden-v1")
+    assert res["by_cat"]["overall"][2] == 60
+    causes = {c["id"]: c["cause"] for c in res["changed"]}
+    assert set(causes) == {"acl-01b", "write-01"}
+    assert not any("UNEXPECTED" in c for c in causes.values())
+    # v1 column reproduces the originally published baseline numbers
+    assert res["by_cat"]["overall"][:2] == (32, 32)
+    assert res["by_cat"]["write_action"][:2] == (1, 0)
+    assert res["by_cat"]["acl_boundary"][:2] == (7, 8)
