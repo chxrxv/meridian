@@ -9,9 +9,11 @@ Nothing in this repo has been deployed to Google Cloud unless a doc says so expl
 > Later phases add the ADK agents, MCP database server, multimodal, security/observability,
 > API/UI/infra, and documented eval improvements.
 >
-> Known limitations right now: the golden set is provisional (not yet human-reviewed), LLM-judge
-> metrics are unvalidated and have not been run, the baseline answerer is extractive (no Gemini
-> run yet), and the pipeline has **no conversation memory, so evals are single-turn only**.
+> Known limitations right now: the golden set (v2) is provisional, LLM-judge metrics are
+> unvalidated and have not been run (the judge is gated on the owner's blind human labels and uses a
+> free-tier Gemini key only), the baseline answerer is extractive so injection/PII results are
+> **not yet measured for an LLM answerer** (a `baseline-gemini` run is planned), and the pipeline
+> has **no conversation memory, so evals are single-turn only**.
 
 ## Quick start
 
