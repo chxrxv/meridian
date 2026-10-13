@@ -65,3 +65,21 @@ def test_not_found_and_invalid_citations_still_behave_as_before():
     # citation index out of range => falls back to extractive text (not the model text)
     out = _answerer(FakeModels("Answer [9].", usage)).answer("text", _hits(), {"text": 1.0})
     assert "[9]" not in out
+
+
+def test_requests_and_fallback_flags_expose_silent_degradation():
+    usage = SimpleNamespace(prompt_token_count=1, candidates_token_count=1)
+    ok = _answerer(FakeModels("Fine [1].", usage))
+    ok.answer("q", _hits(), {})
+    assert (ok.last_requests, ok.last_fallback, ok.last_error) == (1, False, None)
+
+    broken = _answerer(FakeModels("", raises=True))
+    out = broken.answer("text", _hits(), {"text": 1.0})
+    assert broken.last_fallback is True and "RuntimeError" in broken.last_error
+    assert broken.last_requests == 1 and out  # extractive text came back instead
+
+    bad_cite = _answerer(FakeModels("Claim [9].", usage))
+    bad_cite.answer("text", _hits(), {"text": 1.0})
+    assert bad_cite.last_fallback is True and "citation" in bad_cite.last_error
+    ok.answer("q", _hits(), {})  # flags reset on the next call
+    assert ok.last_fallback is False

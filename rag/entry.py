@@ -40,6 +40,9 @@ class AnswerResult:
     model: str | None  # None => extractive, no LLM involved
     tokens: dict[str, int] = field(default_factory=lambda: {"input": 0, "output": 0})
     latency_ms: float = 0.0
+    requests: int = 0  # model API requests attempted (0 for extractive)
+    answerer_fallback: bool = False  # True => text is extractive because the model call failed
+    answerer_error: str | None = None
     acl_violations_blocked: int = 0
     history_used: bool = False  # always False in the baseline (see module docstring)
 
@@ -62,6 +65,16 @@ def answer(
     pipeline: RagPipeline | None = None,
 ) -> AnswerResult:
     pipe = pipeline or default_pipeline()
+    # The answerer is not called when the confidence gate refuses, so clear its per-call
+    # instrumentation first; otherwise the previous call's tokens/requests would be reported.
+    for attr, empty in (
+        ("last_usage", None),
+        ("last_requests", 0),
+        ("last_fallback", False),
+        ("last_error", None),
+    ):
+        if hasattr(pipe.answerer, attr):
+            setattr(pipe.answerer, attr, empty)
     t0 = time.perf_counter()
     res = pipe.ask(user_id, message)
     latency = (time.perf_counter() - t0) * 1000
@@ -82,5 +95,8 @@ def answer(
         model=getattr(pipe.answerer, "model", None),
         tokens={"input": usage.get("input", 0), "output": usage.get("output", 0)},
         latency_ms=latency,
+        requests=int(getattr(pipe.answerer, "last_requests", 0) or 0),
+        answerer_fallback=bool(getattr(pipe.answerer, "last_fallback", False)),
+        answerer_error=getattr(pipe.answerer, "last_error", None),
         acl_violations_blocked=res.acl_violations_blocked,
     )

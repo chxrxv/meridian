@@ -57,3 +57,28 @@ def test_history_is_accepted_but_has_no_effect():
 def test_unknown_user_still_raises():
     with pytest.raises(KeyError):
         answer("mallory", "anything", pipeline=pipeline_for("memory", "fixed"))
+
+
+def test_instrumentation_is_not_carried_over_into_a_refused_call():
+    from types import SimpleNamespace
+
+    from rag.generate import GeminiAnswerer
+
+    usage = SimpleNamespace(prompt_token_count=100, candidates_token_count=7)
+
+    class Models:
+        def generate_content(self, model, contents):
+            return SimpleNamespace(text="Answer [1].", usage_metadata=usage)
+
+    pipe = pipeline_for("memory", "fixed")
+    original = pipe.answerer
+    try:
+        pipe.answerer = GeminiAnswerer(model="fake", client=SimpleNamespace(models=Models()))
+        first = answer("frank", "what discount can a sales manager approve", pipeline=pipe)
+        assert not first.refused and first.requests == 1 and first.tokens["input"] == 100
+        refused = answer("ivan", "what is the weather in Paris today", pipeline=pipe)
+        assert refused.refused
+        assert refused.requests == 0 and refused.tokens == {"input": 0, "output": 0}
+        assert refused.answerer_fallback is False
+    finally:
+        pipe.answerer = original

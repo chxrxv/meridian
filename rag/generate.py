@@ -78,7 +78,11 @@ class GeminiAnswerer:
         self._client = client
         self._model = model or os.getenv("MERIDIAN_MODEL", "gemini-2.5-flash")
         self.model = self._model
-        self.last_usage: dict[str, int] | None = None  # read by rag.entry for token accounting
+        # Instrumentation read by rag.entry (no effect on answers):
+        self.last_usage: dict[str, int] | None = None  # token accounting
+        self.last_requests = 0  # API requests attempted for the last answer (0 or 1)
+        self.last_fallback = False  # True if the returned text is extractive, not Gemini's
+        self.last_error: str | None = None  # why the API call failed, if it did
         self._fallback = ExtractiveAnswerer()
 
     def answer(self, query: str, hits: list[Hit], idf: dict[str, float]) -> str:
@@ -86,7 +90,8 @@ class GeminiAnswerer:
             f"[{n}] {h.chunk.title} - {h.chunk.heading or 'excerpt'}\n{h.chunk.text}"
             for n, h in enumerate(hits, start=1)
         )
-        self.last_usage = None
+        self.last_usage, self.last_fallback, self.last_error = None, False, None
+        self.last_requests = 1
         try:
             res = self._client.models.generate_content(
                 model=self._model, contents=_PROMPT.format(query=query, sources=sources)
@@ -98,11 +103,13 @@ class GeminiAnswerer:
                     "output": int(getattr(um, "candidates_token_count", 0) or 0),
                 }
             text = (res.text or "").strip()
-        except Exception:  # noqa: BLE001 - any API failure degrades to extractive
+        except Exception as e:  # noqa: BLE001 - any API failure degrades to extractive
+            self.last_fallback, self.last_error = True, f"{type(e).__name__}: {e}"
             return self._fallback.answer(query, hits, idf)
         if not text or "NOT_FOUND" in text:
             return REFUSAL
         cited = {int(n) for n in re.findall(r"\[(\d+)\]", text)}
         if not cited or any(n < 1 or n > len(hits) for n in cited):
+            self.last_fallback, self.last_error = True, "invalid or missing citation markers"
             return self._fallback.answer(query, hits, idf)
         return text
