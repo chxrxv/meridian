@@ -1,19 +1,24 @@
 {
   "tag": "baseline-extractive-memory",
-  "started_utc": "2026-10-13T15:37:40+00:00",
+  "started_utc": "2026-10-13T15:56:48+00:00",
   "git": {
-    "commit": "965b8cf70ea09f5a85fe4a18357390ce27b2e9fa",
+    "commit": "5fc15fbd0618b5e0e8ee40b3b97bb74ced2fd353",
     "dirty": false
   },
   "python": "3.11.9",
   "n_scenarios": 60,
+  "n_run": 60,
+  "complete": true,
+  "stop_reason": null,
   "subset": null,
   "generator": "extractive",
+  "billing": "n/a (no model calls)",
   "models": {
     "answerer": null,
     "embedder": "hash",
     "judge": null
   },
+  "answerer_fallbacks": 0,
   "price_table_version": "unset",
   "config": {
     "data_dir": "C:\\Users\\Charuvi Suresh\\Documents\\Meridian\\data",
@@ -37,11 +42,12 @@
     ],
     "fixtures_excluded": []
   },
-  "golden_sha256": "405a13dd7308132f1484d3ad107bb91d5a6483d837513cc43d9d910cb99995d0",
+  "golden_sha256": "610f4eaa7fa710226136ac347ee2bf63dc3748b394560fa7dd3a21af1d8544f1",
   "golden_status": "provisional (pending human review of reference answers)",
   "judge": {
-    "status": "not_requested",
-    "validated": false
+    "status": "not_run",
+    "validated": false,
+    "how": "python -m evals.judge_run"
   },
   "excluded_categories": []
 }

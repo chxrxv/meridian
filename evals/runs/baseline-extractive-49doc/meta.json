@@ -1,22 +1,27 @@
 {
   "tag": "baseline-extractive-49doc",
-  "started_utc": "2026-10-13T15:39:34+00:00",
+  "started_utc": "2026-10-13T15:57:08+00:00",
   "git": {
-    "commit": "f2cf05a12cf94e1a78e6293c89d77cdb829a2aa6",
+    "commit": "5fc15fbd0618b5e0e8ee40b3b97bb74ced2fd353",
     "dirty": false
   },
   "python": "3.11.9",
   "n_scenarios": 54,
+  "n_run": 54,
+  "complete": true,
+  "stop_reason": null,
   "subset": null,
   "generator": "extractive",
+  "billing": "n/a (no model calls)",
   "models": {
     "answerer": null,
     "embedder": "hash",
     "judge": null
   },
+  "answerer_fallbacks": 0,
   "price_table_version": "unset",
   "config": {
-    "data_dir": "C:\\Users\\CHARUV~1\\AppData\\Local\\Temp\\tmpohwfo665",
+    "data_dir": "C:\\Users\\CHARUV~1\\AppData\\Local\\Temp\\tmpryejixrf",
     "store": "chroma",
     "embedder": "hash",
     "generator": "extractive",
@@ -37,11 +42,12 @@
       "sop-fleet-maintenance"
     ]
   },
-  "golden_sha256": "405a13dd7308132f1484d3ad107bb91d5a6483d837513cc43d9d910cb99995d0",
+  "golden_sha256": "610f4eaa7fa710226136ac347ee2bf63dc3748b394560fa7dd3a21af1d8544f1",
   "golden_status": "provisional (pending human review of reference answers)",
   "judge": {
-    "status": "not_requested",
-    "validated": false
+    "status": "not_run",
+    "validated": false,
+    "how": "python -m evals.judge_run"
   },
   "excluded_categories": [
     "prompt_injection"

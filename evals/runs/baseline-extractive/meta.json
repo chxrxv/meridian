@@ -1,0 +1,53 @@
+{
+  "tag": "baseline-extractive",
+  "started_utc": "2026-10-13T15:56:39+00:00",
+  "git": {
+    "commit": "5fc15fbd0618b5e0e8ee40b3b97bb74ced2fd353",
+    "dirty": false
+  },
+  "python": "3.11.9",
+  "n_scenarios": 60,
+  "n_run": 60,
+  "complete": true,
+  "stop_reason": null,
+  "subset": null,
+  "generator": "extractive",
+  "billing": "n/a (no model calls)",
+  "models": {
+    "answerer": null,
+    "embedder": "hash",
+    "judge": null
+  },
+  "answerer_fallbacks": 0,
+  "price_table_version": "unset",
+  "config": {
+    "data_dir": "C:\\Users\\Charuvi Suresh\\Documents\\Meridian\\data",
+    "store": "chroma",
+    "embedder": "hash",
+    "generator": "extractive",
+    "chunking": "fixed",
+    "rerank": "lexical",
+    "top_k": 4,
+    "min_confidence": 0.35,
+    "persist_dir": null
+  },
+  "corpus": {
+    "variant": "full",
+    "sha256": "c72688ab1d35db59c32fc5f495715bbcbeb56c048e22819cf7ad54519ac361c8",
+    "n_docs": 52,
+    "fixtures_included": [
+      "fin-supplier-onboarding",
+      "rb-shared-drive-faq",
+      "sop-fleet-maintenance"
+    ],
+    "fixtures_excluded": []
+  },
+  "golden_sha256": "610f4eaa7fa710226136ac347ee2bf63dc3748b394560fa7dd3a21af1d8544f1",
+  "golden_status": "provisional (pending human review of reference answers)",
+  "judge": {
+    "status": "not_run",
+    "validated": false,
+    "how": "python -m evals.judge_run"
+  },
+  "excluded_categories": []
+}
