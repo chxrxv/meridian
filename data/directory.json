@@ -1,0 +1,190 @@
+{
+  "users": [
+    {
+      "id": "alice",
+      "name": "Alice Okafor",
+      "title": "IT Support Engineer",
+      "department": "IT",
+      "groups": [
+        "it"
+      ]
+    },
+    {
+      "id": "amir",
+      "name": "Amir Haddad",
+      "title": "IT Administrator",
+      "department": "IT",
+      "groups": [
+        "it-admins"
+      ]
+    },
+    {
+      "id": "bob",
+      "name": "Bob Lindqvist",
+      "title": "HR Business Partner",
+      "department": "HR",
+      "groups": [
+        "hr"
+      ]
+    },
+    {
+      "id": "beth",
+      "name": "Beth Nakamura",
+      "title": "HR Director",
+      "department": "HR",
+      "groups": [
+        "hr-leads"
+      ]
+    },
+    {
+      "id": "carol",
+      "name": "Carol Reyes",
+      "title": "AP Analyst",
+      "department": "Finance",
+      "groups": [
+        "finance"
+      ]
+    },
+    {
+      "id": "dan",
+      "name": "Dan Whitfield",
+      "title": "Finance Controller",
+      "department": "Finance",
+      "groups": [
+        "finance-managers"
+      ]
+    },
+    {
+      "id": "erin",
+      "name": "Erin Castellano",
+      "title": "Account Executive",
+      "department": "Sales",
+      "groups": [
+        "sales"
+      ]
+    },
+    {
+      "id": "frank",
+      "name": "Frank Osei",
+      "title": "Sales Ops Manager",
+      "department": "Sales",
+      "groups": [
+        "sales-managers"
+      ]
+    },
+    {
+      "id": "grace",
+      "name": "Grace Tanaka",
+      "title": "General Counsel",
+      "department": "Legal",
+      "groups": [
+        "legal"
+      ]
+    },
+    {
+      "id": "heidi",
+      "name": "Heidi Brandt",
+      "title": "CFO",
+      "department": "Executive",
+      "groups": [
+        "exec",
+        "finance-managers"
+      ]
+    },
+    {
+      "id": "ivan",
+      "name": "Ivan Petrov",
+      "title": "Dispatcher",
+      "department": "Operations",
+      "groups": [
+        "ops"
+      ]
+    },
+    {
+      "id": "judy",
+      "name": "Judy Moreau",
+      "title": "Contractor (Marketing)",
+      "department": "Marketing",
+      "groups": []
+    },
+    {
+      "id": "kai",
+      "name": "Kai Mensah",
+      "title": "CEO",
+      "department": "Executive",
+      "groups": [
+        "exec"
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "implies": [],
+      "id": "everyone",
+      "description": "All staff and contractors"
+    },
+    {
+      "implies": [],
+      "id": "it",
+      "description": "IT support"
+    },
+    {
+      "implies": [
+        "it"
+      ],
+      "id": "it-admins",
+      "description": "IT administrators"
+    },
+    {
+      "implies": [],
+      "id": "hr",
+      "description": "Human resources"
+    },
+    {
+      "implies": [
+        "hr"
+      ],
+      "id": "hr-leads",
+      "description": "HR leadership"
+    },
+    {
+      "implies": [],
+      "id": "finance",
+      "description": "Finance team"
+    },
+    {
+      "implies": [
+        "finance"
+      ],
+      "id": "finance-managers",
+      "description": "Finance managers"
+    },
+    {
+      "implies": [],
+      "id": "sales",
+      "description": "Sales and sales-ops"
+    },
+    {
+      "implies": [
+        "sales"
+      ],
+      "id": "sales-managers",
+      "description": "Sales managers"
+    },
+    {
+      "implies": [],
+      "id": "legal",
+      "description": "Legal"
+    },
+    {
+      "implies": [],
+      "id": "ops",
+      "description": "Operations and dispatch"
+    },
+    {
+      "implies": [],
+      "id": "exec",
+      "description": "Executive team"
+    }
+  ]
+}
