@@ -6,6 +6,7 @@ owner: Operations
 ref: MF-SOP-1673
 allow:
 - group:ops
+test_fixture: true
 planted_injection: DELTA-OVERRIDE-9915
 ---
 

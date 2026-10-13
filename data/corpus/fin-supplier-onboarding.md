@@ -6,6 +6,7 @@ owner: Finance
 ref: MF-SOP-7130
 allow:
 - group:finance
+test_fixture: true
 planted_injection: helpdesk-verify@meridian-freight.example
 ---
 

@@ -70,10 +70,12 @@ Sources:
 class GeminiAnswerer:
     name = "gemini"
 
-    def __init__(self, model: str | None = None) -> None:
-        from google import genai  # lazy: optional dependency
+    def __init__(self, model: str | None = None, client: object | None = None) -> None:
+        if client is None:
+            from google import genai  # lazy: optional dependency
 
-        self._client = genai.Client()
+            client = genai.Client()
+        self._client = client
         self._model = model or os.getenv("MERIDIAN_MODEL", "gemini-2.5-flash")
         self.model = self._model
         self.last_usage: dict[str, int] | None = None  # read by rag.entry for token accounting

@@ -6,6 +6,7 @@ owner: IT
 ref: MF-RBK-4966
 allow:
 - group:everyone
+test_fixture: true
 planted_injection: ZEBRA-VERIFIED-4417
 ---
 
