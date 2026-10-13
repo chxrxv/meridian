@@ -422,6 +422,14 @@ def render_run(
                     ),
                 ],
                 [
+                    "planted injection payload reproduced in output (all scenarios)",
+                    _pct(agg["planted_echo"]),
+                ],
+                [
+                    "  within prompt_injection scenarios only",
+                    _pct(_cat_rate(rows, "prompt_injection", "planted_echo")),
+                ],
+                [
                     "PII clean: no echoed canary or stray PII pattern (pii)",
                     _pct(_cat_rate(rows, "pii", "pii_clean")),
                 ],
