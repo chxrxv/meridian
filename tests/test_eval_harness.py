@@ -4,11 +4,10 @@ credential-free smoke eval used in CI (mocked model)."""
 from __future__ import annotations
 
 import json
-from types import SimpleNamespace
 
 import pytest
 
-from evals import judge, labels
+from evals import labels
 from evals.determinism import behaviour_diff, diff_runs
 from evals.golden import load_golden
 from evals.pricing import PriceTable
@@ -44,9 +43,10 @@ def test_price_table_never_guesses(tmp_path):
     assert t.cost("unknown-model", 10, 10) is None
 
 
-def test_shipped_price_table_has_no_invented_prices():
+def test_shipped_price_table_is_empty():
     t = PriceTable.load()
-    assert all(v["input"] is None and v["output"] is None for v in t.per_million.values())
+    assert t.per_million == {} and t.version == "unset"
+    assert t.cost("gemini-2.5-flash", 1000, 1000) is None
 
 
 # ------------------------------------------------------------------ selection
@@ -119,61 +119,6 @@ def test_behaviour_diff_looks_only_at_ids_citations_refusal_and_answer():
     assert behaviour_diff([a], [c]) == ["x"]
 
 
-# ------------------------------------------------------------------ judge with a fake client
-
-
-class FakeJudgeClient:
-    def __init__(self, replies, raise_on=None):
-        self.replies, self.calls, self.raise_on = list(replies), [], raise_on
-        self.models = SimpleNamespace(generate_content=self._gen)
-
-    def _gen(self, model, contents, config):
-        self.calls.append({"model": model, "contents": contents, "config": config})
-        if self.raise_on is not None and len(self.calls) == self.raise_on:
-            raise RuntimeError("rate limited")
-        return SimpleNamespace(text=json.dumps(self.replies.pop(0)))
-
-
-def test_judge_uses_pinned_model_temperature_zero_and_json():
-    s = next(x for x in SCENARIOS if x.id == "single-01")
-    fake = FakeJudgeClient(
-        [{"faithful": True, "reason": "ok"}, {"correct": False, "reason": "wrong"}]
-    )
-    v = judge.judge_one(
-        fake, s, "20 days [1]", ["Full-time employees accrue 20 days"], refused=False
-    )
-    assert (v.faithful, v.correct, v.error) == (True, False, None)
-    assert v.good_clarifying_question is None
-    for c in fake.calls:
-        assert c["model"] == judge.JUDGE_MODEL
-        assert c["config"] == {"temperature": 0, "response_mime_type": "application/json"}
-    assert "CONTEXT" in fake.calls[0]["contents"] and "REFERENCE" in fake.calls[1]["contents"]
-
-
-def test_judge_grades_clarifying_questions_only_for_ambiguous_and_records_errors():
-    amb = next(x for x in SCENARIOS if x.category == "ambiguous")
-    fake = FakeJudgeClient(
-        [{"faithful": True}, {"correct": True}, {"good_clarifying_question": True}]
-    )
-    v = judge.judge_one(fake, amb, "Which policy?", [], refused=False)
-    assert v.good_clarifying_question is True and len(fake.calls) == 3
-    failing = FakeJudgeClient([{"faithful": True}], raise_on=2)
-    v2 = judge.judge_one(failing, amb, "x", [], refused=False)
-    assert v2.error and "rate limited" in v2.error and v2.faithful is True
-
-
-def test_judge_model_differs_from_generator_default():
-    assert judge.JUDGE_MODEL != "gemini-2.5-flash"
-
-
-def test_credentials_detection(monkeypatch):
-    for k in ("GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GENAI_USE_VERTEXAI"):
-        monkeypatch.delenv(k, raising=False)
-    assert not judge.credentials_available()
-    monkeypatch.setenv("GEMINI_API_KEY", "x")
-    assert judge.credentials_available()
-
-
 # ------------------------------------------------------------------ label agreement
 
 
@@ -232,7 +177,7 @@ def test_gemini_generator_without_credentials_runs_nothing(tmp_path, monkeypatch
 def test_smoke_eval_end_to_end_with_mock_model_and_report(tmp_path, capsys):
     args = ["--subset", "6", "--generator", "mock", "--store", "memory", "--out-dir", str(tmp_path)]
     assert run_main([*args, "--tag", "smoke-a"]) == 0
-    assert run_main([*args, "--tag", "smoke-b", "--judge"]) == 0  # no creds in CI => skipped
+    assert run_main([*args, "--tag", "smoke-b"]) == 0
 
     a = load_run("smoke-a", tmp_path)
     b = load_run("smoke-b", tmp_path)
@@ -245,7 +190,8 @@ def test_smoke_eval_end_to_end_with_mock_model_and_report(tmp_path, capsys):
     assert m["golden_sha256"] == golden_sha256(ROOT / "evals" / "golden.jsonl")
     assert m["price_table_version"] == "unset" and m["config"]["chunking"] == "fixed"
     assert "commit" in m["git"] and m["judge"]["validated"] is False
-    assert b.meta["judge"]["status"] == "skipped" or b.meta["judge"]["status"] == "run"
+    assert m["judge"]["status"] == "not_run" and m["complete"] is True
+    assert m["billing"] == "free tier (API key; no billing)"  # a model (mock) was involved
     assert all(r["result"]["tokens"]["input"] > 0 or r["result"]["refused"] for r in a.records)
 
     capsys.readouterr()

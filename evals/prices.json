@@ -1,9 +1,6 @@
 {
   "version": "unset",
   "currency": "USD",
-  "note": "Per-million-token prices are deliberately left null: fill them from the current Google Cloud price list and bump 'version' before reporting cost for a Gemini run. Models with no entry, or null prices, yield cost=null (reported as n/a), never a guess. Runs with no model calls (extractive) cost 0.",
-  "per_million_tokens": {
-    "gemini-2.5-flash": {"input": null, "output": null},
-    "gemini-2.5-pro": {"input": null, "output": null}
-  }
+  "note": "Intentionally empty. All Gemini calls in this project use a free-tier API key (no billing), so reports state '$0 (free tier)' with request and token counts instead of a computed price. Add per-model entries here only if a billed run is ever approved.",
+  "per_million_tokens": {}
 }

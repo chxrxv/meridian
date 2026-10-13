@@ -9,3 +9,4 @@ data/*.duckdb
 data/*.sqlite
 evals/runs/*
 !evals/runs/baseline-*/
+.judge_cache/
