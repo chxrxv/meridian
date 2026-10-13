@@ -29,6 +29,8 @@ class Answerer(Protocol):
 
 class ExtractiveAnswerer:
     name = "extractive"
+    model: str | None = None  # no model involved
+    last_usage: dict[str, int] | None = None
 
     def __init__(self, max_sentences: int = 3) -> None:
         self.max_sentences = max_sentences
@@ -73,6 +75,8 @@ class GeminiAnswerer:
 
         self._client = genai.Client()
         self._model = model or os.getenv("MERIDIAN_MODEL", "gemini-2.5-flash")
+        self.model = self._model
+        self.last_usage: dict[str, int] | None = None  # read by rag.entry for token accounting
         self._fallback = ExtractiveAnswerer()
 
     def answer(self, query: str, hits: list[Hit], idf: dict[str, float]) -> str:
@@ -80,10 +84,17 @@ class GeminiAnswerer:
             f"[{n}] {h.chunk.title} - {h.chunk.heading or 'excerpt'}\n{h.chunk.text}"
             for n, h in enumerate(hits, start=1)
         )
+        self.last_usage = None
         try:
             res = self._client.models.generate_content(
                 model=self._model, contents=_PROMPT.format(query=query, sources=sources)
             )
+            um = getattr(res, "usage_metadata", None)
+            if um is not None:
+                self.last_usage = {
+                    "input": int(getattr(um, "prompt_token_count", 0) or 0),
+                    "output": int(getattr(um, "candidates_token_count", 0) or 0),
+                }
             text = (res.text or "").strip()
         except Exception:  # noqa: BLE001 - any API failure degrades to extractive
             return self._fallback.answer(query, hits, idf)
