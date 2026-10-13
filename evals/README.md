@@ -4,8 +4,29 @@
 refers to the fictional Meridian Freight corpus in `data/corpus/`. Golden data and (later) judge
 prompts live in `evals/`, never in `data/`, so they cannot be retrieved.
 
-Status: **golden set written; harness and baseline run not yet built** (Phase 2 is paused for
-review of this file before any run).
+Status: golden set **provisional** (pending human review of the reference answers); harness
+built; baseline recorded in [../EVALS.md](../EVALS.md). Every run stores the golden-set hash
+(`golden_sha256`) and a corpus manifest hash, so runs against different golden sets or corpora
+are visibly different.
+
+## Running
+
+```bash
+python -m evals.run --tag NAME [--subset N] [--store chroma|memory] [--generator extractive|gemini|mock]
+                    [--corpus full|no-fixtures] [--exclude-categories prompt_injection] [--judge]
+python -m evals.report NAME [--compare OTHER]       # delta = NAME - OTHER, common scenarios only
+python -m evals.determinism RUN_A RUN_B             # exact / float-tolerant / behavioural equality
+python -m evals.labels sample --tag NAME            # 10 scenarios to hand-label for judge validation
+python -m evals.labels agreement --tag NAME         # judge-vs-human agreement, after labels + judge run
+```
+
+Outputs are `evals/runs/NAME/{results.jsonl, meta.json[, judge.jsonl]}`. Only `baseline-*` run
+directories are committed. `--generator gemini` refuses to start without credentials; `--judge`
+is skipped (and recorded as skipped) without them. `evals/prices.json` deliberately holds no
+prices: cost for Gemini runs is `n/a` until you fill it in.
+
+Metric definitions live in `evals/metrics.py` (every deterministic metric has unit tests in
+`tests/test_eval_metrics.py`) and are summarised in EVALS.md.
 
 ## Schema
 
@@ -74,6 +95,9 @@ review of this file before any run).
 
 ## Known limitations
 
+- Single-turn only; see above.
+- Runs on the Chroma store are not bit-reproducible (EVALS.md, "Reproducibility"); use
+  `--store memory` for exact repeatability.
 - 60 scenarios is small: per-category rates move in steps of 7-20 points per scenario.
 - Reference answers were written by one author (an AI assistant) and have not been reviewed by a
   human. 9 scenarios are flagged `needs_human_review: true` where the right behaviour is a judgement

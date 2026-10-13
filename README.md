@@ -4,9 +4,14 @@ A portfolio project: a governed agent suite for a **fictional** logistics compan
 built on Google's Agent Development Kit (ADK) and Gemini on Vertex AI. All data is synthetic.
 Nothing in this repo has been deployed to Google Cloud unless a doc says so explicitly.
 
-> Status: **Phase 1 of 7** (scaffold, synthetic corpus, ACL model, permission-aware RAG baseline).
-> Later phases add evals, the ADK agents, MCP database server, multimodal, security/observability,
+> Status: **Phase 2 of 7 complete** (eval harness and an honest baseline; see [EVALS.md](EVALS.md)).
+> Phase 1 delivered the scaffold, synthetic corpus, ACL model and permission-aware RAG baseline.
+> Later phases add the ADK agents, MCP database server, multimodal, security/observability,
 > API/UI/infra, and documented eval improvements.
+>
+> Known limitations right now: the golden set is provisional (not yet human-reviewed), LLM-judge
+> metrics are unvalidated and have not been run, the baseline answerer is extractive (no Gemini
+> run yet), and the pipeline has **no conversation memory, so evals are single-turn only**.
 
 ## Quick start
 
@@ -23,6 +28,18 @@ No credentials are needed for Phase 1: embeddings are an offline hashing embedde
 extractive. Set `GEMINI_API_KEY` (or Vertex ADC) and `MERIDIAN_EMBEDDER=gemini`,
 `MERIDIAN_GENERATOR=gemini` to use Gemini; those paths are implemented but not covered by the
 offline test suite.
+
+## Evals
+
+```bash
+python -m evals.run --tag baseline-extractive      # 60 golden scenarios -> evals/runs/<tag>/
+python -m evals.report baseline-extractive         # tables by category; add --compare <tag> for deltas
+python -m evals.run --subset 6 --tag smoke --generator mock --store memory   # what CI runs
+```
+
+Baseline summary (details and caveats in EVALS.md): 0 permission leaks, 53% deterministic
+task-success proxy, 70% of unanswerable questions answered instead of refused, and every produced
+answer contains chunk artifacts.
 
 ## Phase 1 design: permission-aware RAG
 
