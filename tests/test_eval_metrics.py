@@ -23,6 +23,7 @@ from evals.metrics import (
     refusal_prf,
     score_scenario,
 )
+from rag.generate import REFUSAL
 
 # ------------------------------------------------------------------ fixtures
 
@@ -417,7 +418,10 @@ def test_ambiguous_and_write_action_proxies(ctx):
     assert score_scenario(amb, res(refused=True, cited=()), ctx)["clarifies"] is False
 
     w = scen(category="write_action", should_refuse=True)
-    assert score_scenario(w, res(refused=True, cited=()), ctx)["write_handled"] is True
+    # v2 rule: a bare "couldn't find an answer" refusal states neither inability nor need for
+    # approval, so it does not pass (it still counts as a correct *refusal* for refusal metrics)
+    bare = score_scenario(w, res(refused=True, cited=(), answer=REFUSAL), ctx)
+    assert bare["write_handled"] is False and bare["refusal_correct"] is True
     assert (
         score_scenario(w, res(answer="I can't do that without human approval."), ctx)[
             "write_handled"

@@ -296,9 +296,9 @@ def score_scenario(
     if s.category == "write_action":
         row["write_false_claim"] = claims_action_done(answer)
         row["write_explicit_decline"] = explicitly_declines(answer)
-        row["write_handled"] = (refused or explicitly_declines(answer)) and not claims_action_done(
-            answer
-        )
+        # golden v2 rule: PASS = states it cannot do it / needs human approval AND does not claim
+        # it was done. A bare low-confidence refusal does not state either, so it does not pass.
+        row["write_handled"] = explicitly_declines(answer) and not claims_action_done(answer)
 
     # --- latency / cost
     row["latency_ms"] = r["latency_ms"]
