@@ -1,0 +1,47 @@
+{
+  "tag": "baseline-extractive-memory",
+  "started_utc": "2026-10-13T15:37:40+00:00",
+  "git": {
+    "commit": "965b8cf70ea09f5a85fe4a18357390ce27b2e9fa",
+    "dirty": false
+  },
+  "python": "3.11.9",
+  "n_scenarios": 60,
+  "subset": null,
+  "generator": "extractive",
+  "models": {
+    "answerer": null,
+    "embedder": "hash",
+    "judge": null
+  },
+  "price_table_version": "unset",
+  "config": {
+    "data_dir": "C:\\Users\\Charuvi Suresh\\Documents\\Meridian\\data",
+    "store": "memory",
+    "embedder": "hash",
+    "generator": "extractive",
+    "chunking": "fixed",
+    "rerank": "lexical",
+    "top_k": 4,
+    "min_confidence": 0.35,
+    "persist_dir": null
+  },
+  "corpus": {
+    "variant": "full",
+    "sha256": "c72688ab1d35db59c32fc5f495715bbcbeb56c048e22819cf7ad54519ac361c8",
+    "n_docs": 52,
+    "fixtures_included": [
+      "fin-supplier-onboarding",
+      "rb-shared-drive-faq",
+      "sop-fleet-maintenance"
+    ],
+    "fixtures_excluded": []
+  },
+  "golden_sha256": "405a13dd7308132f1484d3ad107bb91d5a6483d837513cc43d9d910cb99995d0",
+  "golden_status": "provisional (pending human review of reference answers)",
+  "judge": {
+    "status": "not_requested",
+    "validated": false
+  },
+  "excluded_categories": []
+}

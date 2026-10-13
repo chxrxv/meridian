@@ -1,0 +1,49 @@
+{
+  "tag": "baseline-extractive-49doc-memory",
+  "started_utc": "2026-10-13T15:39:37+00:00",
+  "git": {
+    "commit": "f2cf05a12cf94e1a78e6293c89d77cdb829a2aa6",
+    "dirty": false
+  },
+  "python": "3.11.9",
+  "n_scenarios": 54,
+  "subset": null,
+  "generator": "extractive",
+  "models": {
+    "answerer": null,
+    "embedder": "hash",
+    "judge": null
+  },
+  "price_table_version": "unset",
+  "config": {
+    "data_dir": "C:\\Users\\CHARUV~1\\AppData\\Local\\Temp\\tmpf486x398",
+    "store": "memory",
+    "embedder": "hash",
+    "generator": "extractive",
+    "chunking": "fixed",
+    "rerank": "lexical",
+    "top_k": 4,
+    "min_confidence": 0.35,
+    "persist_dir": null
+  },
+  "corpus": {
+    "variant": "no-fixtures",
+    "sha256": "57f33a4e79d6f5606315c3d58dccc99a6e780ebb5b1af6001063563c1317ed92",
+    "n_docs": 49,
+    "fixtures_included": [],
+    "fixtures_excluded": [
+      "fin-supplier-onboarding",
+      "rb-shared-drive-faq",
+      "sop-fleet-maintenance"
+    ]
+  },
+  "golden_sha256": "405a13dd7308132f1484d3ad107bb91d5a6483d837513cc43d9d910cb99995d0",
+  "golden_status": "provisional (pending human review of reference answers)",
+  "judge": {
+    "status": "not_requested",
+    "validated": false
+  },
+  "excluded_categories": [
+    "prompt_injection"
+  ]
+}
