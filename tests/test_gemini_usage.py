@@ -38,7 +38,9 @@ def test_last_usage_records_tokens_from_usage_metadata():
 
 
 def test_last_usage_is_reset_between_calls_and_none_on_api_failure():
-    a = _answerer(FakeModels("ok [1]", SimpleNamespace(prompt_token_count=1, candidates_token_count=2)))
+    a = _answerer(
+        FakeModels("ok [1]", SimpleNamespace(prompt_token_count=1, candidates_token_count=2))
+    )
     a.answer("q", _hits(), {})
     assert a.last_usage == {"input": 1, "output": 2}
     a._client = SimpleNamespace(models=FakeModels("", raises=True))
@@ -50,7 +52,9 @@ def test_missing_usage_metadata_gives_none_and_none_counts_become_zero():
     a = _answerer(FakeModels("ok [1]", None))
     a.answer("q", _hits(), {})
     assert a.last_usage is None
-    a2 = _answerer(FakeModels("ok [1]", SimpleNamespace(prompt_token_count=None, candidates_token_count=None)))
+    a2 = _answerer(
+        FakeModels("ok [1]", SimpleNamespace(prompt_token_count=None, candidates_token_count=None))
+    )
     a2.answer("q", _hits(), {})
     assert a2.last_usage == {"input": 0, "output": 0}
 

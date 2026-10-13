@@ -32,3 +32,4 @@ addopts = "-q"
 
 [tool.ruff.lint.per-file-ignores]
 "scripts/generate_data.py" = ["E501"]  # long synthetic-document prose
+"evals/report.py" = ["E501"]  # markdown table rows

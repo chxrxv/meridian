@@ -1,0 +1,29 @@
+name: ci
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Lint
+        run: |
+          ruff check .
+          ruff format --check .
+      - name: Unit tests
+        run: pytest
+      - name: Smoke eval (6 scenarios, mocked model, no credentials)
+        run: |
+          python -m evals.run --subset 6 --tag ci-smoke --generator mock --store memory --out-dir "$RUNNER_TEMP/runs"
+          python -m evals.report ci-smoke --runs-dir "$RUNNER_TEMP/runs" | tee "$RUNNER_TEMP/smoke-report.md"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smoke-eval
+          path: ${{ runner.temp }}/runs
